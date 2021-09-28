@@ -128,4 +128,21 @@ class Request
     {
         $this->subs = $subs;
     }
+
+    /**
+     * @return string
+     */
+    public function getFileId(): string
+    {
+        return $this->file_id;
+    }
+
+    /**
+     * @param string $file_id
+     */
+    public function setFileId(string $file_id): void
+    {
+        $this->file_id = $file_id;
+    }
+    
 }
