@@ -1,0 +1,27 @@
+{
+    "name": "zuhri/vlive",
+    "type": "project",
+    "authors": [
+        {
+            "name": "Muhammad Zuhri Hanifullah",
+            "email": "zuhri2395@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.4",
+        "ext-mbstring": "*",
+        "ext-curl": "*",
+        "ext-json": "*",
+        "ext-fileinfo": "*",
+        "netresearch/jsonmapper": "^v4.0",
+        "doctrine/orm": "^2.6.2",
+        "symfony/yaml": "2.*",
+        "symfony/cache": "^5.3",
+        "symfony/dotenv": "^5.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    }
+}
