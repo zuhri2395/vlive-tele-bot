@@ -21,7 +21,13 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
-        }
+            "App\\": "src/",
+            "TelegramBot\\": "telebot/src/",
+            "TelegramBot\\Types\\": "telebot/src/Types/",
+            "TelegramBot\\Constants\\": "telebot/src/Constants/"
+        },
+        "files": [
+            "telebot/src/TelegramHelper.php"
+        ]
     }
 }
