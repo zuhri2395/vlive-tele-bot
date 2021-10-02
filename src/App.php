@@ -48,10 +48,14 @@ class App
                         }
                     }
 
+                    $text = "[<a href='$link'>VLIVE</a>] - $json->title" . PHP_EOL;
+                    $text .= 'Silahkan pilih kualitas video';
+
                     $this->bot->sendMessage([
                         'chat_id' => $update->message->chat->id,
                         'reply_markup' => $this->bot->buildInlineKeyBoard($buttons),
-                        'text' => 'Silahkan pilih kualitas video'
+                        'parse_mode' => 'HTML',
+                        'text' => $text
                     ]);
                 } else {
                     $this->bot->sendMessage([
