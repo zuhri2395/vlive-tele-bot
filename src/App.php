@@ -44,13 +44,13 @@ class App
                     $buttons = [0 => []];
                     foreach($json->formats as $format) {
                         if($format->ext == 'mp4') {
-                            $buttons[0][] = $this->bot->buildInlineKeyboardButton($format->height, null, $vliveId . '_format_id');
+                            $buttons[0][] = $this->bot->buildInlineKeyboardButton($format->height, '', $vliveId . '_format_id');
                         }
                     }
 
                     $this->bot->sendMessage([
                         'chat_id' => $update->message->chat->id,
-                        'reply_markup' => $this->bot->buildKeyBoard($buttons),
+                        'reply_markup' => $this->bot->buildInlineKeyBoard($buttons),
                         'text' => 'Silahkan pilih kualitas video'
                     ]);
                 } else {
