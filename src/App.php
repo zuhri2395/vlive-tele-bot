@@ -13,7 +13,7 @@ class App
     function __construct(TelegramBot $bot)
     {
         $this->bot = $bot;
-        $this->cache = new FilesystemAdapter('', 0, dirname(__FILE__) . '../cache');
+        $this->cache = new FilesystemAdapter('', 0, dirname(__FILE__) . '/../cache');
     }
 
     function processUpdate()
@@ -45,25 +45,25 @@ class App
                     $vliveId = explode('/', $link);
                     $vliveId = end($vliveId);
                     $cacheKey = "vlive_$vliveId";
-                    $item = $this->cache->getItem($cacheKey);
 
+                    $item = $this->cache->getItem($cacheKey);
                     if($item->isHit()) {
-                        $json = $item->get();
+                        $metadata = $item->get();
                     } else {
                         exec("youtube-dl -j $link", $output);
-                        $json = json_decode($output[0]);
-                        $item->set($json);
+                        $metadata = json_decode($output[0]);
+                        $item->set($output[0]);
                         $this->cache->save($item);
                     }
 
                     $buttons = [0 => []];
-                    foreach($json->formats as $format) {
+                    foreach($metadata->formats as $format) {
                         if($format->ext == 'mp4') {
                             $buttons[0][] = $this->bot->buildInlineKeyboardButton($format->height, '', "quality_$format->height");
                         }
                     }
 
-                    $text = "[<a href='$link'>VLIVE</a>] - $json->title" . PHP_EOL;
+                    $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL;
                     $text .= 'Silahkan pilih kualitas video';
 
                     $this->bot->sendMessage([
