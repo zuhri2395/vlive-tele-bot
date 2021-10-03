@@ -1,6 +1,8 @@
 <?php
 namespace App;
 
+use App\Entity\Request;
+use Doctrine\ORM\EntityManager;
 use TelegramBot\TelegramBot;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use TelegramBot\Types\CallbackQuery;
@@ -9,9 +11,13 @@ class App
 {
     private TelegramBot $bot;
     private FilesystemAdapter $cache;
+    private EntityManager $em;
 
     function __construct(TelegramBot $bot)
     {
+        include_once '../bootstrap.php';
+        $this->em = $entityManager;
+
         $this->bot = $bot;
         $this->cache = new FilesystemAdapter('', 0, dirname(__FILE__) . '/../cache');
     }
@@ -98,18 +104,29 @@ class App
 
     private function handleCallbackQuery(String $key, CallbackQuery $cbq)
     {
+        $link = $cbq->message->entities[0]->url;
+        $vliveId = explode('/', $link);
+        $vliveId = end($vliveId);
+
         switch ($key) {
             case 'ok':
-                $msg = $cbq->message->text;
+                $dataCache = $this->cache->getItem("vlive_$vliveId" . '_data');
+                $data = $dataCache->get();
+
+                $request = new Request();
+                $request->setLink($link);
+                $request->setQuality($data['quality']);
+                $request->setSubs($data['subtitle']);
+                $request->setUserId($cbq->from->id);
+
+                $this->em->persist($request);
+                $this->em->flush();
 
                 break;
             case 'cancel':
                 $this->bot->deleteMessage($cbq->message->chat->id, $cbq->message->message_id);
                 break;
             case 'quality':
-                $link = $cbq->message->entities[0]->url;
-                $vliveId = explode('/', $link);
-                $vliveId = end($vliveId);
                 $metadataCache = $this->cache->getItem("vlive_$vliveId");
                 $metadata = json_decode($metadataCache->get());
 
@@ -140,6 +157,43 @@ class App
                 $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
                 $text .= "Kualitas = $quality" . PHP_EOL . PHP_EOL;
                 $text .= 'Silahkan pilih subtitle';
+
+                $this->bot->editMessageText([
+                    'chat_id' => $cbq->from->id,
+                    'message_id' => $cbq->message->message_id,
+                    'reply_markup' => $this->bot->buildInlineKeyBoard($buttons),
+                    'parse_mode' => 'HTML',
+                    'text' => $text
+                ]);
+                break;
+            case 'subtitle':
+                $metadataCache = $this->cache->getItem("vlive_$vliveId");
+                $metadata = json_decode($metadataCache->get());
+
+                $item = $this->cache->getItem("vlive_$vliveId" . '_data');
+                $data = $item->get();
+
+                $subtitle = str_replace('subtitle_', null, $cbq->data);
+                $data['subtitle'] = $subtitle;
+                $item->set($data);
+                $this->cache->save($item);
+
+                $buttons = [
+                    [
+                        $this->bot->buildInlineKeyboardButton('Ubah Kualitas', '', 'change_quality'),
+                        $this->bot->buildInlineKeyboardButton('Ubah Subtitle', '', 'change_sub'),
+                    ],
+                    [
+                        $this->bot->buildInlineKeyboardButton('OK', '', 'ok'),
+                    ],
+                    [
+                        $this->bot->buildInlineKeyboardButton('Batal', '', 'cancel'),
+                    ]
+                ];
+
+                $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
+                $text .= "Kualitas = " . $data['quality'] . PHP_EOL;
+                $text .= "Subtitle = " . $subtitle;
 
                 $this->bot->editMessageText([
                     'chat_id' => $cbq->from->id,
