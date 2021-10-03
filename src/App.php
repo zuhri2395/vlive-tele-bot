@@ -51,10 +51,11 @@ class App
                         $metadata = $item->get();
                     } else {
                         exec("youtube-dl -j $link", $output);
-                        $metadata = json_decode($output[0]);
-                        $item->set($output[0]);
+                        $metadata = $output[0];
+                        $item->set($metadata);
                         $this->cache->save($item);
                     }
+                    $metadata = json_decode($metadata);
 
                     $buttons = [];
                     $row = 0;
