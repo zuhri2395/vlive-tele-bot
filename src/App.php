@@ -21,7 +21,7 @@ class App
         $update = $this->bot->getWebhookUpdate();
 
         if(!empty($update->callback_query)) {
-            $keyList = ['quality', 'subs', 'change_quality', 'change_sub', 'cancel', 'ok'];
+            $keyList = $this->getListOfQueryKey();
             $originalMessage = $update->callback_query->message;
             $link = $originalMessage->entities[0]->url;
 
@@ -44,9 +44,10 @@ class App
                 if($this->checkLink($link)) {
                     $vliveId = explode('/', $link);
                     $vliveId = end($vliveId);
-                    $cacheKey = "vlive_$vliveId";
+                    $cacheMetadataKey = "vlive_$vliveId";
+                    $cacheDataKey = "vlive_$vliveId" . '_data';
 
-                    $item = $this->cache->getItem($cacheKey);
+                    $item = $this->cache->getItem($cacheMetadataKey);
                     if($item->isHit()) {
                         $metadata = $item->get();
                     } else {
@@ -55,6 +56,11 @@ class App
                         $item->set($metadata);
                         $this->cache->save($item);
                     }
+
+                    $vliveData = $this->cache->getItem($cacheDataKey);
+                    $vliveData->set(['quality' => '', 'subtitle' => '']);
+                    $this->cache->save($vliveData);
+
                     $metadata = json_decode($metadata);
 
                     $buttons = [];
@@ -71,8 +77,8 @@ class App
                         }
                     }
 
-                    $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL;
-                    $text .= 'Silahkan pilih kualitas video';
+                    $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
+                    $text .= 'Silahkan pilih resolusi';
 
                     $this->bot->sendMessage([
                         'chat_id' => $update->message->chat->id,
@@ -92,7 +98,6 @@ class App
 
     private function handleCallbackQuery(String $key, CallbackQuery $cbq)
     {
-        $keyList = ['quality', 'subs', 'change_quality', 'change_sub', 'cancel', 'ok'];
         switch ($key) {
             case 'ok':
                 $msg = $cbq->message->text;
@@ -101,7 +106,55 @@ class App
             case 'cancel':
                 $this->bot->deleteMessage($cbq->message->chat->id, $cbq->message->message_id);
                 break;
+            case 'quality':
+                $link = $cbq->message->entities[0]->url;
+                $vliveId = explode('/', $link);
+                $vliveId = end($vliveId);
+                $metadataCache = $this->cache->getItem("vlive_$vliveId");
+                $metadata = json_decode($metadataCache->get());
+
+                $item = $this->cache->getItem("vlive_$vliveId" . '_data');
+                $data = $item->get();
+
+                $quality = str_replace('quality_', null, $cbq->data);
+                foreach($metadata->formats as $format) {
+                    if($format->ext == 'mp4' && $format->height == $quality) {
+                        $data['quality'] = $format->format_id;
+                    }
+                }
+                $item->set($data);
+                $this->cache->save($item);
+
+                $buttons = [];
+                $row = 0;
+                $idx = 0;
+                foreach($metadata->subtitles as $key => $subtitle) {
+                    $buttons[$row][] = $this->bot->buildInlineKeyboardButton($key, '', "subtitle_$key");
+                    $idx++;
+                    if($idx == 3) {
+                        $row++;
+                        $idx = 0;
+                    }
+                }
+
+                $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
+                $text .= "Kualitas = $quality" . PHP_EOL . PHP_EOL;
+                $text .= 'Silahkan pilih subtitle';
+
+                $this->bot->editMessageText([
+                    'chat_id' => $cbq->from->id,
+                    'message_id' => $cbq->message->message_id,
+                    'reply_markup' => $this->bot->buildInlineKeyBoard($buttons),
+                    'parse_mode' => 'HTML',
+                    'text' => $text
+                ]);
+                break;
         }
+    }
+
+    private function getListOfQueryKey()
+    {
+        return ['quality', 'subtitle', 'change_quality', 'change_sub', 'cancel', 'ok'];
     }
 
     private function checkLink(string $link)
