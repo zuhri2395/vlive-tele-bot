@@ -15,7 +15,7 @@ class App
 
     function __construct(TelegramBot $bot)
     {
-        include_once '../bootstrap.php';
+        include_once dirname(__FILE__) . '/../bootstrap.php';
         $this->em = $entityManager;
 
         $this->bot = $bot;
