@@ -13,7 +13,7 @@ class App
     function __construct(TelegramBot $bot)
     {
         $this->bot = $bot;
-        $this->cache = new FilesystemAdapter('', 0, dirname(__FILE__) . '../cache/');
+        $this->cache = new FilesystemAdapter('', 0, dirname(__FILE__) . '../cache');
     }
 
     function processUpdate()

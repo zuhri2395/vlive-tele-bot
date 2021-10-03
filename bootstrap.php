@@ -13,6 +13,8 @@ $config = Setup::createAnnotationMetadataConfiguration(array(__DIR__."/src/Entit
 $dotenv = new Dotenv();
 $dotenv->load(__DIR__ . '/.env');
 
+\Sentry\init(['dsn' => $_ENV['SENTRY_DSN'] ]);
+
 // database configuration parameters
 $conn = array(
     'driver' => 'pdo_mysql',
