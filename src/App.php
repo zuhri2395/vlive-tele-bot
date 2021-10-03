@@ -89,6 +89,7 @@ class App
                     $this->bot->sendMessage([
                         'chat_id' => $update->message->chat->id,
                         'reply_markup' => $this->bot->buildInlineKeyBoard($buttons),
+                        'reply_to_message_id' => $update->message->message_id,
                         'parse_mode' => 'HTML',
                         'text' => $text
                     ]);
@@ -121,6 +122,13 @@ class App
 
                 $this->em->persist($request);
                 $this->em->flush();
+
+                $this->bot->editMessageText([
+                    'chat_id' => $cbq->from->id,
+                    'message_id' => $cbq->message->message_id,
+                    'parse_mode' => 'HTML',
+                    'text' => 'Request dimasukkan ke dalam antrian'
+                ]);
 
                 break;
             case 'cancel':
