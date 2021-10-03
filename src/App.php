@@ -56,10 +56,16 @@ class App
                         $this->cache->save($item);
                     }
 
-                    $buttons = [0 => []];
+                    $buttons = [];
+                    $row = 0;
+                    $idx = 1;
                     foreach($metadata->formats as $format) {
                         if($format->ext == 'mp4') {
-                            $buttons[0][] = $this->bot->buildInlineKeyboardButton($format->height, '', "quality_$format->height");
+                            if($row % 3 == 0) {
+                                $row++;
+                            }
+                            $buttons[$row][] = $this->bot->buildInlineKeyboardButton($format->height, '', "quality_$format->height");
+                            $idx++;
                         }
                     }
 
