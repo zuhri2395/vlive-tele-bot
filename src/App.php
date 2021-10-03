@@ -59,14 +59,15 @@ class App
 
                     $buttons = [];
                     $row = 0;
-                    $idx = 1;
+                    $idx = 0;
                     foreach($metadata->formats as $format) {
                         if($format->ext == 'mp4') {
-                            if($row % 3 == 0) {
-                                $row++;
-                            }
                             $buttons[$row][] = $this->bot->buildInlineKeyboardButton($format->height, '', "quality_$format->height");
                             $idx++;
+                            if($idx == 3) {
+                                $row++;
+                                $idx = 0;
+                            }
                         }
                     }
 
