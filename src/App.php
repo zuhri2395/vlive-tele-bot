@@ -69,19 +69,7 @@ class App
 
                     $metadata = json_decode($metadata);
 
-                    $buttons = [];
-                    $row = 0;
-                    $idx = 0;
-                    foreach($metadata->formats as $format) {
-                        if($format->ext == 'mp4') {
-                            $buttons[$row][] = $this->bot->buildInlineKeyboardButton($format->height, '', "quality_$format->height");
-                            $idx++;
-                            if($idx == 3) {
-                                $row++;
-                                $idx = 0;
-                            }
-                        }
-                    }
+                    $buttons = $this->generateInlineKeyboardButton('quality', $metadata);
 
                     $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
                     $text .= 'Silahkan pilih resolusi';
@@ -134,6 +122,31 @@ class App
             case 'cancel':
                 $this->bot->deleteMessage($cbq->message->chat->id, $cbq->message->message_id);
                 break;
+            case 'change_quality':
+            case 'change_subtitle':
+                $metadataCache = $this->cache->getItem("vlive_$vliveId");
+                $metadata = json_decode($metadataCache->get());
+
+                $item = $this->cache->getItem("vlive_$vliveId" . '_data');
+                $data = $item->get();
+
+                $explode = explode('change_', $key);
+
+                $buttons = $this->generateInlineKeyboardButton($explode[1], $metadata);
+
+                $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
+                $text .= "Kualitas = " . $data['quality'] . PHP_EOL;
+                $text .= "Subtitle = " . $data['subtitle'] . PHP_EOL . PHP_EOL;
+                $text .= 'Silahkan pilih ' . $explode[1] == 'quality' ? 'kualitas' : 'subtitle';
+
+                $this->bot->editMessageText([
+                    'chat_id' => $cbq->from->id,
+                    'message_id' => $cbq->message->message_id,
+                    'reply_markup' => $this->bot->buildInlineKeyBoard($buttons),
+                    'parse_mode' => 'HTML',
+                    'text' => $text
+                ]);
+                break;
             case 'quality':
                 $metadataCache = $this->cache->getItem("vlive_$vliveId");
                 $metadata = json_decode($metadataCache->get());
@@ -150,17 +163,7 @@ class App
                 $item->set($data);
                 $this->cache->save($item);
 
-                $buttons = [];
-                $row = 0;
-                $idx = 0;
-                foreach($metadata->subtitles as $key => $subtitle) {
-                    $buttons[$row][] = $this->bot->buildInlineKeyboardButton($key, '', "subtitle_$key");
-                    $idx++;
-                    if($idx == 3) {
-                        $row++;
-                        $idx = 0;
-                    }
-                }
+                $buttons = $this->generateInlineKeyboardButton('subtitle', $metadata);
 
                 $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
                 $text .= "Kualitas = $quality" . PHP_EOL . PHP_EOL;
@@ -217,6 +220,42 @@ class App
     private function getListOfQueryKey()
     {
         return ['quality', 'subtitle', 'change_quality', 'change_sub', 'cancel', 'ok'];
+    }
+
+    private function generateInlineKeyboardButton(string $type, $metadata)
+    {
+        $buttons = [];
+        $row = 0;
+        $idx = 0;
+
+        switch ($type) {
+            case 'quality' :
+                foreach($metadata->formats as $format) {
+                    if($format->ext == 'mp4') {
+                        $buttons[$row][] = $this->bot->buildInlineKeyboardButton($format->height, '', "quality_$format->height");
+                        $idx++;
+                        if($idx == 3) {
+                            $row++;
+                            $idx = 0;
+                        }
+                    }
+                }
+                break;
+            case 'subtitle':
+                foreach($metadata->subtitles as $key => $subtitle) {
+                    $buttons[$row][] = $this->bot->buildInlineKeyboardButton($key, '', "subtitle_$key");
+                    $idx++;
+                    if($idx == 3) {
+                        $row++;
+                        $idx = 0;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+
+        return $buttons;
     }
 
     private function checkLink(string $link)
