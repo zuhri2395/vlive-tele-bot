@@ -99,12 +99,23 @@ class App
 
         switch ($key) {
             case 'ok':
+                $metadataCache = $this->cache->getItem("vlive_$vliveId");
+                $metadata = json_decode($metadataCache->get());
+
                 $dataCache = $this->cache->getItem("vlive_$vliveId" . '_data');
                 $data = $dataCache->get();
 
+                $quality = '';
+
+                foreach($metadata->formats as $format) {
+                    if($format->ext == 'mp4' && $format->height == $data['quality']) {
+                        $quality = $format->format_id;
+                    }
+                }
+
                 $request = new Request();
                 $request->setLink($link);
-                $request->setQuality($data['quality']);
+                $request->setQuality($quality);
                 $request->setSubs($data['subtitle']);
                 $request->setUserId($cbq->from->id);
 
@@ -154,19 +165,14 @@ class App
                 $item = $this->cache->getItem("vlive_$vliveId" . '_data');
                 $data = $item->get();
 
-                $quality = str_replace('quality_', null, $cbq->data);
-                foreach($metadata->formats as $format) {
-                    if($format->ext == 'mp4' && $format->height == $quality) {
-                        $data['quality'] = $format->format_id;
-                    }
-                }
+                $data['quality'] = str_replace('quality_', null, $cbq->data);
                 $item->set($data);
                 $this->cache->save($item);
 
                 $buttons = $this->generateInlineKeyboardButton('subtitle', $metadata);
 
                 $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
-                $text .= "Kualitas = $quality" . PHP_EOL . PHP_EOL;
+                $text .= "Kualitas = " . $data['quality'] . PHP_EOL . PHP_EOL;
                 $text .= 'Silahkan pilih subtitle';
 
                 $this->bot->editMessageText([
@@ -189,18 +195,7 @@ class App
                 $item->set($data);
                 $this->cache->save($item);
 
-                $buttons = [
-                    [
-                        $this->bot->buildInlineKeyboardButton('Ubah Kualitas', '', 'change_quality'),
-                        $this->bot->buildInlineKeyboardButton('Ubah Subtitle', '', 'change_sub'),
-                    ],
-                    [
-                        $this->bot->buildInlineKeyboardButton('OK', '', 'ok'),
-                    ],
-                    [
-                        $this->bot->buildInlineKeyboardButton('Batal', '', 'cancel'),
-                    ]
-                ];
+                $buttons = $this->generateInlineKeyboardButton('confirmation', $metadata);
 
                 $text = "[<a href='$link'>VLIVE</a>] - $metadata->title" . PHP_EOL . PHP_EOL;
                 $text .= "Kualitas = " . $data['quality'] . PHP_EOL;
@@ -240,6 +235,7 @@ class App
                         }
                     }
                 }
+                $buttons[$row+1][] = $this->bot->buildInlineKeyboardButton('Batal', '', 'cancel');
                 break;
             case 'subtitle':
                 foreach($metadata->subtitles as $key => $subtitle) {
@@ -250,6 +246,21 @@ class App
                         $idx = 0;
                     }
                 }
+                $buttons[$row+1][] = $this->bot->buildInlineKeyboardButton('Batal', '', 'cancel');
+                break;
+            case 'confirmation':
+                $buttons = [
+                    [
+                        $this->bot->buildInlineKeyboardButton('Ubah Kualitas', '', 'change_quality'),
+                        $this->bot->buildInlineKeyboardButton('Ubah Subtitle', '', 'change_sub'),
+                    ],
+                    [
+                        $this->bot->buildInlineKeyboardButton('OK', '', 'ok'),
+                    ],
+                    [
+                        $this->bot->buildInlineKeyboardButton('Batal', '', 'cancel'),
+                    ]
+                ];
                 break;
             default:
                 break;
