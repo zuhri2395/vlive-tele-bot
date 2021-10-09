@@ -42,7 +42,7 @@ class App
                     }
                 }
             }
-        } else {
+        } else if(!empty($update->message)) {
             $command = $update->message->getCommand();
             if($command == '/download') {
                 $link = $update->message->getArgs()[0];
