@@ -5,7 +5,7 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * @ORM\Entity
+ * @ORM\Entity(repositoryClass="App\Repository\RequestRepository")
  * @ORM\Table(name="request", indexes={@ORM\Index(name="vlive_idx", columns={"link"})})
  */
 class Request
