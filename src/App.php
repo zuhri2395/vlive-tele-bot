@@ -235,7 +235,6 @@ class App
                         }
                     }
                 }
-                $buttons[$row+1][] = $this->bot->buildInlineKeyboardButton('Batal', '', 'cancel');
                 break;
             case 'subtitle':
                 foreach($metadata->subtitles as $key => $subtitle) {
@@ -246,7 +245,6 @@ class App
                         $idx = 0;
                     }
                 }
-                $buttons[$row+1][] = $this->bot->buildInlineKeyboardButton('Batal', '', 'cancel');
                 break;
             case 'confirmation':
                 $buttons = [
