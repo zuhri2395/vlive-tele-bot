@@ -221,7 +221,7 @@ class App
 
     private function checkLink(string $link)
     {
-        $re = '/^(http|https):\/\/(.*)vlive\.tv\/post\/(.*)/i';
+        $re = '/^(http|https):\/\/(.*)vlive\.tv\/(post|video)\/(.*)/i';
         return preg_match($re, $link);
     }
 }
