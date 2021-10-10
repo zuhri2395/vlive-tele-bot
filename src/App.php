@@ -259,11 +259,13 @@ class App
                 break;
             case 'subtitle':
                 foreach($metadata->subtitles as $key => $subtitle) {
-                    $buttons[$row][] = $this->bot->buildInlineKeyboardButton($key, '', "subtitle_$key");
-                    $idx++;
-                    if($idx == 3) {
-                        $row++;
-                        $idx = 0;
+                    if($key == 'en_US' || $key == 'in_ID') {
+                        $buttons[$row][] = $this->bot->buildInlineKeyboardButton($key, '', "subtitle_$key");
+                        $idx++;
+                        if($idx == 3) {
+                            $row++;
+                            $idx = 0;
+                        }
                     }
                 }
                 break;
