@@ -135,11 +135,11 @@ class App
                 $name = $cbq->from->first_name;
                 $filesize = $filesize/1024/1024;
                 $filesize = round($filesize, 0, PHP_ROUND_HALF_UP);
-                $text = "Request baru oleh <a href='tg://user?id=$userId'>$name</a>" . PHP_EOL . "#newrequest";
+                $text = "Request baru oleh <a href='tg://user?id=$userId'>$name</a>" . PHP_EOL;
                 $text .= "Link : $link" . PHP_EOL;
                 $text .= "Kualitas : $quality" . PHP_EOL;
                 $text .= "Subs : " . $data['subtitle'] . PHP_EOL;
-                $text .= "File Size : " . $filesize . ' MB';
+                $text .= "File Size : " . $filesize . ' MB' . PHP_EOL . PHP_EOL . "#newrequest";
 
                 $this->bot->sendMessage([
                     'chat_id' => '@z_test_group',
