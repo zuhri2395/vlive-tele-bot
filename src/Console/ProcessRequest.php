@@ -48,7 +48,7 @@ class ProcessRequest extends Command
                     'chat_id' => $request->getUserId(),
                     'video' => $fileID
                 ]);
-
+                unlink($this->rootPath . 'output/.lock');
                 return Command::SUCCESS;
             }
             $exec = $_ENV['YTDL_PATH'] . ' -f ' . $request->getQuality() . ' --write-sub --sub-lang ' . $request->getSubs() . ' --embed-subs --exec "mkdir temp && ' . $_ENV['FFMPEG_PATH'] .' -i {} -vf subtitles={}:force_style=\'FontName=Arial\' -acodec copy temp/{} && mv -f temp/{} {} && rm -r temp && cp {} output/twice.mp4" --restrict-filenames ' . $request->getLink();
