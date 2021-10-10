@@ -32,10 +32,25 @@ class ProcessRequest extends Command
 
         file_put_contents($this->rootPath . 'output/.lock', null);
 
+        $bot = new TelegramBot($_ENV['BOT_TOKEN'], $_ENV['BOT_DOMAIN']);
         $requestRepo = $this->em->getRepository('App\Entity\Request');
         /** @var Request|null $request */
         $request = $requestRepo->findOneBy(['file_id' => null], ['id' => 'asc']);
         if(!empty($request)) {
+            $existingRequest = $requestRepo->findExistingFileId($request->getLink(), $request->getQuality(), $request->getSubs());
+            if(!empty($existingRequest)) {
+                $fileID = $existingRequest[0]['file_id'];
+                $request->setFileId($fileID);
+                $this->em->persist($request);
+                $this->em->flush();
+
+                $bot->sendVideo([
+                    'chat_id' => $request->getUserId(),
+                    'video' => $fileID
+                ]);
+
+                return Command::SUCCESS;
+            }
             $exec = 'youtube-dl -f ' . $request->getQuality() . ' --write-sub --sub-lang ' . $request->getSubs() . ' --embed-subs --exec "mkdir temp && ffmpeg -i {} -vf subtitles={}:force_style=\'FontName=Arial\' -acodec copy temp/{} && mv -f temp/{} {} && rm -r temp && cp {} output/twice.mp4" --restrict-filenames ' . $request->getLink();
             exec($exec);
             if(file_exists($this->rootPath . 'output/twice.mp4')) {
@@ -62,7 +77,6 @@ class ProcessRequest extends Command
                     imagejpeg($imgResized, $this->rootPath . 'output/thumb.jpg');
                 }
 
-                $bot = new TelegramBot($_ENV['BOT_TOKEN'], $_ENV['BOT_DOMAIN']);
                 $width = 0;
                 $height = 0;
                 foreach($metadata->formats as $format) {

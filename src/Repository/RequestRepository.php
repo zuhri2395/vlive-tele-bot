@@ -3,6 +3,7 @@ namespace App\Repository;
 
 use App\Entity\Request;
 use Doctrine\ORM\EntityRepository;
+use function Doctrine\ORM\QueryBuilder;
 
 /**
  * @method Request|null find($id, $lockMode = null, $lockVersion = null)
@@ -12,6 +13,21 @@ use Doctrine\ORM\EntityRepository;
  */
 class RequestRepository extends EntityRepository
 {
+    public function findExistingFileId($link, $quality, $subs)
+    {
+        $qb = $this->createQueryBuilder('r');
+        return $qb->where('r.link = :link')
+                    ->select('r.file_id')
+                    ->andWhere('r.quality = :quality')
+                    ->andWhere('r.subs = :subs')
+                    ->andWhere($qb->expr()->isNotNull('r.file_id'))
+                    ->setMaxResults(1)
+                    ->setParameter('quality', $quality)
+                    ->setParameter('link', $link)
+                    ->setParameter('subs', $subs)
+                    ->getQuery()
+                    ->getResult();
+    }
     // /**
     //  * @return LeadData[] Returns an array of LeadData objects
     //  */
