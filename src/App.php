@@ -240,7 +240,10 @@ class App
             case 'quality' :
                 foreach($metadata->formats as $format) {
                     if($format->ext == 'mp4') {
-                        $buttons[$row][] = $this->bot->buildInlineKeyboardButton($format->height, '', "quality_$format->height");
+                        $filesize = $format->filesize;
+                        $filesize = $filesize/1024/1024;
+                        $filesize = round($filesize, 0, PHP_ROUND_HALF_UP);
+                        $buttons[$row][] = $this->bot->buildInlineKeyboardButton($format->height . "($filesize MB)", '', "quality_$format->height");
                         $idx++;
                         if($idx == 3) {
                             $row++;
