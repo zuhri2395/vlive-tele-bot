@@ -51,7 +51,7 @@ class ProcessRequest extends Command
                 unlink($this->rootPath . 'output/.lock');
                 return Command::SUCCESS;
             }
-            $exec = $_ENV['YTDL_PATH'] . ' -f ' . $request->getQuality() . ' --write-sub --sub-lang ' . $request->getSubs() . ' --embed-subs --exec "mkdir temp && ' . $_ENV['FFMPEG_PATH'] .' -i {} -vf subtitles={}:force_style=\'FontName=Arial\' -acodec copy temp/{} && mv -f temp/{} {} && rm -r temp && cp {} output/twice.mp4" --restrict-filenames ' . $request->getLink();
+            $exec = $_ENV['YTDL_PATH'] . ' -f ' . $request->getQuality() . ' --write-sub --sub-lang ' . $request->getSubs() . ' --embed-subs --exec "mkdir temp && ' . $_ENV['FFMPEG_PATH'] .' -i {} -vf subtitles={}:force_style=\'FontName=Arial\' -acodec copy temp/{} && mv -f temp/{} {} && rm -r temp && mv {} output/twice.mp4" --restrict-filenames ' . $request->getLink();
             exec($exec);
             if(file_exists($this->rootPath . 'output/twice.mp4')) {
                 $cache = new FilesystemAdapter('', 0, $this->rootPath . 'cache');
