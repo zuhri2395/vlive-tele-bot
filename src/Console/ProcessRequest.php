@@ -51,6 +51,15 @@ class ProcessRequest extends Command
                 unlink($this->rootPath . 'output/.lock');
                 return Command::SUCCESS;
             }
+
+            $userId = $request->getUserId();
+            $text = "[<a href='tg://user?id=$userId'>Request</a>Download dan hardsub video - " . $request->getLink() . PHP_EOL . '#processing';
+            $bot->sendMessage([
+                'chat_id' => '@z_test_group',
+                'parse_mode' => 'HTML',
+                'text' => $text
+            ]);
+
             $exec = $_ENV['YTDL_PATH'] . ' -f ' . $request->getQuality() . ' --write-sub --sub-lang ' . $request->getSubs() . ' --embed-subs --exec "mkdir temp && ' . $_ENV['FFMPEG_PATH'] .' -i {} -vf subtitles={}:force_style=\'FontName=Arial\' -acodec copy temp/{} && mv -f temp/{} {} && rm -r temp && mv {} output/twice.mp4" --restrict-filenames ' . $request->getLink();
             exec($exec);
             if(file_exists($this->rootPath . 'output/twice.mp4')) {
@@ -107,13 +116,21 @@ class ProcessRequest extends Command
                     $request->setFileId($message->video->file_id);
                     $this->em->persist($request);
                     $this->em->flush();
-                }
 
-                unlink($this->rootPath . 'output/twice.mp4');
-                if(file_exists($this->rootPath . 'output/thumb.jpg')) {
-                    unlink($this->rootPath . 'output/thumb.jpg');
+                    unlink($this->rootPath . 'output/twice.mp4');
+                    if(file_exists($this->rootPath . 'output/thumb.jpg')) {
+                        unlink($this->rootPath . 'output/thumb.jpg');
+                    }
+                    unlink($this->rootPath . 'output/.lock');
+
+                    $userId = $request->getUserId();
+                    $text = "[<a href='tg://user?id=$userId'>Request</a>Upload dan kirim - " . $request->getLink() . PHP_EOL . '#upload';
+                    $bot->sendMessage([
+                        'chat_id' => '@z_test_group',
+                        'parse_mode' => 'HTML',
+                        'text' => $text
+                    ]);
                 }
-                unlink($this->rootPath . 'output/.lock');
             }
         }
         return Command::SUCCESS;

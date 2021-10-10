@@ -135,7 +135,7 @@ class App
                 $name = $cbq->from->first_name;
                 $filesize = $filesize/1024/1024;
                 $filesize = round($filesize, 0, PHP_ROUND_HALF_UP);
-                $text = "Request baru oleh <a href='tg://user?id=$userId'>$name</a>" . PHP_EOL;
+                $text = "Request baru oleh <a href='tg://user?id=$userId'>$name</a>" . PHP_EOL . "#newrequest";
                 $text .= "Link : $link" . PHP_EOL;
                 $text .= "Kualitas : $quality" . PHP_EOL;
                 $text .= "Subs : " . $data['subtitle'] . PHP_EOL;
