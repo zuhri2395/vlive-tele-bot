@@ -106,10 +106,12 @@ class App
                 $data = $dataCache->get();
 
                 $quality = '';
+                $filesize = 0;
 
                 foreach($metadata->formats as $format) {
                     if($format->ext == 'mp4' && $format->height == $data['quality']) {
                         $quality = $format->format_id;
+                        $filesize = $format->filesize;
                     }
                 }
 
@@ -131,10 +133,13 @@ class App
 
                 $userId = $cbq->from->id;
                 $name = $cbq->from->first_name;
+                $filesize = $filesize/1024/1024;
+                $filesize = round($filesize, 0, PHP_ROUND_HALF_UP);
                 $text = "Request baru oleh <a href='tg://user?id=$userId'>$name</a>" . PHP_EOL;
                 $text .= "Link : $link" . PHP_EOL;
                 $text .= "Kualitas : $quality" . PHP_EOL;
                 $text .= "Subs : " . $data['subtitle'];
+                $text .= "File Size : " . $filesize;
 
                 $this->bot->sendMessage([
                     'chat_id' => '@z_test_group',
