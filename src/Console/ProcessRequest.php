@@ -124,7 +124,7 @@ class ProcessRequest extends Command
                     unlink($this->rootPath . 'output/.lock');
 
                     $userId = $request->getUserId();
-                    $text = "[<a href='tg://user?id=$userId'>Request</a>]Upload dan kirim - " . $request->getLink() . PHP_EOL . PHP_EOL . '#upload';
+                    $text = "[<a href='tg://user?id=$userId'>Request</a>]Upload dan kirim - " . $request->getLink() . PHP_EOL . 'File ID : '  . $message->video->file_id . PHP_EOL . PHP_EOL . '#upload';
                     $bot->sendMessage([
                         'chat_id' => '@z_test_group',
                         'parse_mode' => 'HTML',
