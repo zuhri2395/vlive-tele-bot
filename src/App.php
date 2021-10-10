@@ -138,8 +138,8 @@ class App
                 $text = "Request baru oleh <a href='tg://user?id=$userId'>$name</a>" . PHP_EOL;
                 $text .= "Link : $link" . PHP_EOL;
                 $text .= "Kualitas : $quality" . PHP_EOL;
-                $text .= "Subs : " . $data['subtitle'];
-                $text .= "File Size : " . $filesize;
+                $text .= "Subs : " . $data['subtitle'] . PHP_EOL;
+                $text .= "File Size : " . $filesize . ' MB';
 
                 $this->bot->sendMessage([
                     'chat_id' => '@z_test_group',
