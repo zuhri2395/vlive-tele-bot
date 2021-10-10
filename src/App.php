@@ -129,6 +129,17 @@ class App
                     'text' => 'Request dimasukkan ke dalam antrian'
                 ]);
 
+                $text = "Request baru oleh <a href='tg://user?id=$cbq->from->id'>$cbq->from->first_name</a>" . PHP_EOL;
+                $text .= "Link : $link" . PHP_EOL;
+                $text .= "Kualitas : $quality" . PHP_EOL;
+                $text .= "Subs : " . $data['subtitle'];
+
+                $this->bot->sendMessage([
+                    'chat_id' => '@z_test_group',
+                    'parse_mode' => 'HTML',
+                    'text' => $text
+                ]);
+
                 break;
             case 'cancel':
                 $this->bot->deleteMessage($cbq->message->chat->id, $cbq->message->message_id);
