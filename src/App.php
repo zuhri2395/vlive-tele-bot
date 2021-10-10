@@ -129,7 +129,9 @@ class App
                     'text' => 'Request dimasukkan ke dalam antrian'
                 ]);
 
-                $text = "Request baru oleh <a href='tg://user?id=$cbq->from->id'>$cbq->from->first_name</a>" . PHP_EOL;
+                $userId = $cbq->from->id;
+                $name = $cbq->from->first_name;
+                $text = "Request baru oleh <a href='tg://user?id=$userId'>$name</a>" . PHP_EOL;
                 $text .= "Link : $link" . PHP_EOL;
                 $text .= "Kualitas : $quality" . PHP_EOL;
                 $text .= "Subs : " . $data['subtitle'];
