@@ -104,6 +104,7 @@ class ProcessRequest extends Command
                     'width' => $width,
                     'height' => $height,
                     'supports_streaming' => true,
+		    'caption' => $request->getLink()
                 ];
                 $filename = $this->rootPath . 'output/thumb.jpg';
                 if(file_exists($filename)) {
