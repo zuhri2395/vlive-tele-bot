@@ -9,11 +9,6 @@
     ],
     "require": {
         "php": ">=8.0",
-        "ext-mbstring": "*",
-        "ext-curl": "*",
-        "ext-json": "*",
-        "ext-fileinfo": "*",
-        "ext-gd": "*",
         "netresearch/jsonmapper": "^v4.0",
         "doctrine/orm": "^2.6.2",
         "symfony/yaml": "2.*",
